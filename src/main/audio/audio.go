@@ -13,12 +13,16 @@ func Reverse(arr *[]int) {
 	}
 }
 
-func SpeedUp(arr *[]int, factor float64) {
-	newArr := make([]int, int(math.Floor(float64(len(*arr))/factor)))
+func Temp(arr *[]int, factor float64) {
+	l := len(*arr)
+	newArr := make([]int, int(math.Floor(float64(l)/factor)))
 	newArr[0] = (*arr)[0]
 	for i := 1; i < len(newArr); i++ {
 		floor := int(math.Floor(float64(i) * factor))
 		ceil := int(math.Ceil(float64(i) * factor))
+		if ceil >= l {
+			break
+		}
 		newArr[i] = ((*arr)[floor] + (*arr)[ceil]) / 2
 	}
 	*arr = newArr

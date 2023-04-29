@@ -16,7 +16,7 @@ var (
 	reverse    = flag.Bool("r", false, "reverse")
 	pitchLow   = flag.Int("pl", 0, "pitch low")
 	pitchRise  = flag.Int("pr", 0, "pitch rise")
-	speedUp    = flag.Float64("su", 1.0, "temp")
+	temp       = flag.Float64("t", 1.0, "temp")
 	gpt        = flag.Float64("gpt", 1.0, "gpt")
 )
 
@@ -24,7 +24,7 @@ func applyFlags(buf *[]int) {
 	r := *reverse
 	pl := *pitchLow
 	pr := *pitchRise
-	su := *speedUp
+	t := *temp
 	g := *gpt
 	if r {
 		audio.Reverse(buf)
@@ -35,8 +35,8 @@ func applyFlags(buf *[]int) {
 	if pr != 0 {
 		audio.PitchRise(buf, pr)
 	}
-	if su != 1.0 {
-		audio.SpeedUp(buf, su)
+	if t != 1.0 {
+		audio.Temp(buf, t)
 	}
 	if g != 1.0 {
 		audio.Gpt(buf, g)
