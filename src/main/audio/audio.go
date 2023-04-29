@@ -13,7 +13,7 @@ func Reverse(arr *[]int) {
 	}
 }
 
-func Temp(arr *[]int, factor float64) {
+func SpeedUp(arr *[]int, factor float64) {
 	newArr := make([]int, int(math.Floor(float64(len(*arr))/factor)))
 	newArr[0] = (*arr)[0]
 	for i := 1; i < len(newArr); i++ {
@@ -24,25 +24,23 @@ func Temp(arr *[]int, factor float64) {
 	*arr = newArr
 }
 
-func Pitch(arr *[]int, factor float64, rate int) {
-	clx := make([]complex128, len(*arr))
-	arrLen := len(*arr)
-	for i := 0; i < arrLen; i++ {
-		clx[i] = complex(float64((*arr)[i]), 0)
-	}
+func pitch(arr *[]int, factor int, f func([]complex128, int) []complex128) {
+	clx := util.IntToComplexArray(*arr)
 
 	fftData := fft.FFT(clx)
-
-	newData := util.ShiftRise(fftData, 50000)
-
+	newData := f(fftData, factor)
 	ifftData := fft.IFFT(newData)
-
-	realData := make([]int, arrLen)
-	for i, c := range ifftData {
-		realData[i] = int(real(c))
-	}
+	realData := util.ComplexToIntArray(ifftData)
 
 	*arr = realData
+}
+
+func PitchLow(arr *[]int, factor int) {
+	pitch(arr, factor, util.ShiftLow)
+}
+
+func PitchRise(arr *[]int, factor int) {
+	pitch(arr, factor, util.ShiftRise)
 }
 
 func Gpt(arr *[]int, factor float64) {
