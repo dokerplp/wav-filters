@@ -28,7 +28,23 @@ func Temp(arr *[]int, factor float64) {
 	*arr = newArr
 }
 
-func pitch(arr *[]int, factor int, f func([]complex128, int) []complex128) {
+func Shift(arr *[]int, factor float64) {
+	clx := util.IntToComplexArray(*arr)
+
+	fftData := fft.FFT(clx)
+
+	newData := make([]complex128, len(fftData))
+	for i, v := range fftData {
+		newData[i] = complex(real(v), imag(v)*factor)
+	}
+
+	ifftData := fft.IFFT(newData)
+	realData := util.ComplexToIntArray(ifftData)
+
+	*arr = realData
+}
+
+func base(arr *[]int, factor int, f func([]complex128, int) []complex128) {
 	clx := util.IntToComplexArray(*arr)
 
 	fftData := fft.FFT(clx)
@@ -39,12 +55,12 @@ func pitch(arr *[]int, factor int, f func([]complex128, int) []complex128) {
 	*arr = realData
 }
 
-func PitchLow(arr *[]int, factor int) {
-	pitch(arr, factor, util.ShiftLow)
+func Low(arr *[]int, factor int) {
+	base(arr, factor, util.ShiftLow)
 }
 
-func PitchRise(arr *[]int, factor int) {
-	pitch(arr, factor, util.ShiftRise)
+func Rise(arr *[]int, factor int) {
+	base(arr, factor, util.ShiftRise)
 }
 
 func Gpt(arr *[]int, factor float64) {

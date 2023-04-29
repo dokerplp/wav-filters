@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"log"
 	"os"
 
 	"main/src/main/audio"
@@ -13,34 +14,51 @@ import (
 var (
 	inputFlag  = flag.String("i", "in.wav", "input file")
 	outputFlag = flag.String("o", "out.wav", "output file")
-	reverse    = flag.Bool("r", false, "reverse")
-	pitchLow   = flag.Int("pl", 0, "pitch low")
-	pitchRise  = flag.Int("pr", 0, "pitch rise")
-	temp       = flag.Float64("t", 1.0, "temp")
-	gpt        = flag.Float64("gpt", 1.0, "gpt")
+
+	reverse = flag.Bool("r", false, "reverse")
+	pitch   = flag.Float64("pitch", 1.0, "pitch shift")
+	tempo   = flag.Float64("tempo", 1.0, "increase / decrease tempo")
+	shift   = flag.Float64("shift", 1.0, "phase shift")
+	pt      = flag.Float64("pt", 1.0, "pitch & tempo")
+
+	low  = flag.Int("low", 0, "smthng low")
+	rise = flag.Int("rise", 0, "smthng rise")
+	gpt  = flag.Float64("gpt", 1.0, "chatgpt strange method")
 )
 
 func applyFlags(buf *[]int) {
-	r := *reverse
-	pl := *pitchLow
-	pr := *pitchRise
-	t := *temp
-	g := *gpt
-	if r {
+	if *reverse {
 		audio.Reverse(buf)
 	}
-	if pl != 0 {
-		audio.PitchLow(buf, pl)
+	if *tempo != 1.0 {
+		audio.Temp(buf, *tempo)
 	}
-	if pr != 0 {
-		audio.PitchRise(buf, pr)
+	if *shift != 1.0 {
+		audio.Shift(buf, *shift)
 	}
-	if t != 1.0 {
-		audio.Temp(buf, t)
+	if *pt != 1.0 && *pitch == 1.0 {
+		audio.Temp(buf, 1 / *pt)
 	}
-	if g != 1.0 {
-		audio.Gpt(buf, g)
+	if *low != 0 {
+		audio.Low(buf, *low)
 	}
+	if *rise != 0 {
+		audio.Rise(buf, *rise)
+	}
+	if *gpt != 1.0 {
+		audio.Gpt(buf, *gpt)
+	}
+}
+
+func pitchShift() float64 {
+	if *pt != 1.0 && *pitch != 1.0 {
+		log.Fatal("pt and pitch flags can't be set together")
+	} else if *pt != 1.0 {
+		return *pt
+	} else if *pitch != 1.0 {
+		return *pitch
+	}
+	return 1.0
 }
 
 func main() {
@@ -60,8 +78,10 @@ func main() {
 	buf, err := decoder.FullPCMBuffer()
 	util.LogError(err)
 
+	ps := pitchShift()
+	newSampleRate := int(float64(buf.Format.SampleRate) * ps)
 	e := wav.NewEncoder(out,
-		buf.Format.SampleRate,
+		newSampleRate,
 		int(decoder.BitDepth),
 		buf.Format.NumChannels,
 		int(decoder.WavAudioFormat))
