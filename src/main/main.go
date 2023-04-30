@@ -16,19 +16,32 @@ var (
 	outputFlag = flag.String("o", "out.wav", "output file")
 
 	reverse = flag.Bool("r", false, "reverse")
+	volume  = flag.Int("vol", 100, "volume")
 	pitch   = flag.Float64("pitch", 1.0, "pitch shift")
 	tempo   = flag.Float64("tempo", 1.0, "increase / decrease tempo")
 	shift   = flag.Float64("shift", 1.0, "phase shift")
 	pt      = flag.Float64("pt", 1.0, "pitch & tempo")
 
-	low  = flag.Int("low", 0, "smthng low")
-	rise = flag.Int("rise", 0, "smthng rise")
-	gpt  = flag.Float64("gpt", 1.0, "chatgpt strange method")
+	low            = flag.Int("low", 0, "smthng low")
+	rise           = flag.Int("rise", 0, "smthng rise")
+	gpt            = flag.Float64("gpt", 1.0, "chatgpt strange method")
+	shuffle        = flag.Bool("sh", false, "shuffle amplitudes")
+	raiseAmplitude = flag.Bool("ra", false, "dynamically changing amplitude")
+	noise          = flag.Bool("n", false, "make sound noisy")
 )
 
 func applyFlags(buf *[]int) {
 	if *reverse {
 		audio.Reverse(buf)
+	}
+	if *shuffle {
+		audio.Shuffle(buf)
+	}
+	if *raiseAmplitude {
+		audio.RaiseAmplitude(buf)
+	}
+	if *noise {
+		audio.Noise(buf)
 	}
 	if *tempo != 1.0 {
 		audio.Temp(buf, *tempo)
@@ -48,11 +61,14 @@ func applyFlags(buf *[]int) {
 	if *gpt != 1.0 {
 		audio.Gpt(buf, *gpt)
 	}
+	if *volume != 100 {
+		audio.Volume(buf, *volume)
+	}
 }
 
 func pitchShift() float64 {
 	if *pt != 1.0 && *pitch != 1.0 {
-		log.Fatal("pt and pitch flags can't be set together")
+		log.Fatal("pt and pitch flags ")
 	} else if *pt != 1.0 {
 		return *pt
 	} else if *pitch != 1.0 {

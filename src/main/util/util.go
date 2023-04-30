@@ -2,6 +2,8 @@ package util
 
 import (
 	"log"
+	"math/rand"
+	"time"
 )
 
 func LogError(err error) {
@@ -43,4 +45,35 @@ func ComplexToIntArray(arr []complex128) []int {
 		realData[i] = int(real(c))
 	}
 	return realData
+}
+
+func RealPartOfComplexArray(arr []complex128) []float64 {
+	realData := make([]float64, len(arr))
+	for i, v := range realData {
+		realData[i] = v
+	}
+	return realData
+}
+
+func ShuffleArray[T any](arr *[]T) {
+	cpy := *arr
+	r := rand.New(rand.NewSource(time.Now().Unix()))
+	for i, j := range r.Perm(len(cpy)) {
+		(*arr)[i] = cpy[j]
+	}
+}
+
+func Max[T interface{ ~int | ~float64 }](arr []T) T {
+	if len(arr) == 0 {
+		log.Fatal("Array is empty")
+	} else {
+		mx := arr[0]
+		for _, v := range arr {
+			if v > mx {
+				mx = v
+			}
+		}
+		return mx
+	}
+	return 0
 }

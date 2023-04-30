@@ -24,3 +24,13 @@ func TestShiftLow(t *testing.T) {
 		t.Fatalf("\nExpected: %v\nActual: %v", shift, want)
 	}
 }
+
+func TestShuffleArray(t *testing.T) {
+	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	cpy := data
+	util.ShuffleArray(&cpy)
+
+	if compareArrays(data, cpy) {
+		t.Fatalf("Arrays shouldn't be equals")
+	}
+}

@@ -2,10 +2,58 @@ package audio
 
 import (
 	"github.com/mjibson/go-dsp/fft"
+	"log"
 	"main/src/main/util"
 	"math"
 	"math/cmplx"
 )
+
+func Noise(arr *[]int) {
+	newData := make([]int, 10)
+	for _, v := range *arr {
+		if v >= 0 {
+			newData = append(newData, v, -v)
+		}
+	}
+	*arr = newData
+}
+
+func Volume(arr *[]int, factor int) {
+	if factor > 100 || factor < 0 {
+		log.Fatal("Incorrect value, must be between 0 and 100")
+	}
+	for i := range *arr {
+		(*arr)[i] = (*arr)[i] * factor / 100
+	}
+}
+
+func Shuffle(arr *[]int) {
+	clx := util.IntToComplexArray(*arr)
+
+	fftData := fft.FFT(clx)
+	realData := util.RealPartOfComplexArray(fftData)
+	util.ShuffleArray(&realData)
+
+	for i, v := range realData {
+		fftData[i] = complex(v, imag(fftData[i]))
+	}
+
+	ifftData := fft.IFFT(fftData)
+	*arr = util.ComplexToIntArray(ifftData)
+}
+
+func RaiseAmplitude(arr *[]int) {
+	clx := util.IntToComplexArray(*arr)
+
+	fftData := fft.FFT(clx)
+	l := len(fftData)
+	for i, v := range fftData {
+		fftData[i] = complex(float64(i)/float64(l), imag(v))
+	}
+
+	ifftData := fft.IFFT(fftData)
+	*arr = util.ComplexToIntArray(ifftData)
+}
 
 func Reverse(arr *[]int) {
 	for i, j := 0, len(*arr)-1; i < len(*arr)/2; i, j = i+1, j-1 {
@@ -39,9 +87,7 @@ func Shift(arr *[]int, factor float64) {
 	}
 
 	ifftData := fft.IFFT(newData)
-	realData := util.ComplexToIntArray(ifftData)
-
-	*arr = realData
+	*arr = util.ComplexToIntArray(ifftData)
 }
 
 func base(arr *[]int, factor int, f func([]complex128, int) []complex128) {
@@ -50,9 +96,7 @@ func base(arr *[]int, factor int, f func([]complex128, int) []complex128) {
 	fftData := fft.FFT(clx)
 	newData := f(fftData, factor)
 	ifftData := fft.IFFT(newData)
-	realData := util.ComplexToIntArray(ifftData)
-
-	*arr = realData
+	*arr = util.ComplexToIntArray(ifftData)
 }
 
 func Low(arr *[]int, factor int) {
