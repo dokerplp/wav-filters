@@ -5,6 +5,7 @@ This application allows you to apply various filters to wav files.
 
 You can:
 * reverse audio
+* decrease volume
 * increase / decrease tempo 🎶
 * increase / decrease pitch 🎼
 * apply some strange filters 🙃
